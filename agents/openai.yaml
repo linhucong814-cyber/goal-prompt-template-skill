@@ -1,0 +1,4 @@
+interface:
+  display_name: "Goal Prompt Template"
+  short_description: "Turn one-line goals into executable prompts"
+  default_prompt: "Use $goal-prompt-template to turn this one-sentence goal into an executable /goal prompt."
