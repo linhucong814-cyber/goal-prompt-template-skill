@@ -1,4 +1,4 @@
 interface:
   display_name: "Goal Prompt Template"
-  short_description: "Turn one-line goals into executable prompts"
-  default_prompt: "Use $goal-prompt-template to turn this one-sentence goal into an executable /goal prompt."
+  short_description: "把一句话目标整理成可执行提示词，或按明确授权完成任务并验证结果"
+  default_prompt: "使用 $goal-prompt-template 理清这个目标的范围、交付物和完成标准；若我要求执行，就完成已授权的任务。"

@@ -1,71 +1,77 @@
-# Goal Prompt Template Skill
+# Goal Prompt Template
 
-一个用于 Codex 的提示词优化 skill。它可以把一句粗略目标、中文想法或一句话需求，整理成可直接交给 Codex、agent 或 `/goal` 执行的最终提示词。
+把一句话目标整理成可执行提示词。明确要求“你来执行最佳实践”时，先理清任务，再完成已授权的工作。
 
-## 功能
+[MIT](LICENSE) · [技能规则](SKILL.md) · [图文设置教程](docs/personalization.md) · [更新公告](docs/releases/v1.1.0.md) · [English](README.en.md)
 
-- 将一句话目标优化成结构清晰的 agent prompt
-- 自动整理适合 `/goal` 使用的长期任务提示词
-- 明确任务目标、背景、范围、约束、交付物和完成标准
-- 尽量少问问题，只有信息真正阻塞执行时才最多提出 3 个关键问题
-- 对检查、调试、修复、重构、UI review 等任务自动加入审批闸门：检查完成之后制定修复方案并向我汇报，在批准后执行
+## 两种用法
 
-## 适用场景
+| 你的要求 | 技能会做什么 |
+| --- | --- |
+| 帮我优化提示词、写模板、生成 `/goal` 提示词 | 输出可复制的最终提示词 |
+| 帮我完成这件事，你来执行最佳实践 | 明确目标和完成标准，执行已授权任务，验证并交付 |
 
-- 优化提问
-- 一句话达成目的
-- 自动翻译成 agent 提示词
-- 生成可复制的 `/goal` 任务模板
-- 把模糊想法变成可执行任务
-- 减少 agent 来回追问，提高首次执行质量
+信息不阻塞时采用合理假设。只有缺失信息影响正确执行或授权范围时才追问，最多三个问题。检查或修复任务尚未授权修改时，会先提交方案；已经授权的操作按约定继续。
 
 ## 安装
 
-克隆仓库后，将 skill 复制到 Codex 的 skills 目录，并确保目标目录名是 `goal-prompt-template`：
+在终端运行以下命令，将技能克隆到当前官方文档列出的用户技能目录。目标目录需为空或不存在。
 
 ```bash
-git clone https://github.com/linhucong814-cyber/goal-prompt-template-skill.git
-mkdir -p ~/.codex/skills
-cp -R goal-prompt-template-skill ~/.codex/skills/goal-prompt-template
+mkdir -p ~/.agents/skills
+git clone https://github.com/linhucong814-cyber/goal-prompt-template-skill.git ~/.agents/skills/goal-prompt-template
 ```
 
-如果 Codex 已经打开，安装后建议重启 Codex 或开启新线程，让 skill 列表刷新。
+更新通过上述方式安装的技能：
 
-## 使用方法
+```bash
+git -C ~/.agents/skills/goal-prompt-template pull --ff-only
+```
 
-在 Codex 中显式调用：
+已有 `~/.codex/skills/goal-prompt-template` 安装的用户，先确认自己的 Codex 能发现该目录，再选择保留或迁移；避免重复安装同名技能。更新后若未显示，重启 Codex。
+
+## 直接调用
+
+只生成提示词：
 
 ```text
-$goal-prompt-template 检查首页移动端排版问题并生成可执行修复任务
+$goal-prompt-template 把“做一个自动整理会议纪要的工具”变成可执行提示词。
 ```
 
-也可以这样写：
+执行任务：
 
 ```text
-Use $goal-prompt-template 把“做一个可以自动整理会议纪要的工具”变成最终可执行提示词
+$goal-prompt-template 帮我给这个开源项目补齐安装教程和使用示例，你来执行最佳实践。完成后检查文档链接。
 ```
 
-生成 `/goal` 任务：
+生成长期任务的提示词：
 
 ```text
-$goal-prompt-template 帮我写 /goal：把这个网站做一次完整 UI 检查并输出修复方案
+$goal-prompt-template 帮我写 /goal：检查这个网站的移动端体验，给出修复方案，等我批准后修改。
 ```
 
-## 输出特点
+## 使用技巧：添加到“个性化”
 
-这个 skill 会优先输出可直接复制执行的最终提示词，而不是再让另一个 AI 去“帮你写提示词”。它会基于用户原始目标补全合理背景和执行标准，并把非阻塞信息作为假设写入提示词中。
+安装后进入 **设置 → 个性化 → 自定义指令 → Codex 指令**，添加使用偏好。
 
-当信息不足但仍可继续时，它会继续生成暂定提示词。当信息缺失会导致执行不安全、不可验证或方向完全不同，它才会先提出最多 3 个关键问题。
+![在个性化中打开 Codex 指令](docs/images/codex-personalization-entry.png)
 
-## 文件结构
+![填写两个技能的使用习惯](docs/images/codex-custom-instructions.png)
 
-```text
-goal-prompt-template/
-├── SKILL.md
-└── agents/
-    └── openai.yaml
-```
+截图由维护者提供，具体界面随版本变化。推荐指令和操作说明见 [完整教程](docs/personalization.md)，也可直接复制 [个性化指令示例](examples/personalization.txt)。该示例同时使用 [自然语气](https://github.com/linhucong814-cyber/lieflat-less-ai-tone)，需要另行安装。
 
-## License
+## 本次更新
 
-MIT License
+- 新增明确授权后的执行模式，保留提示词和 `/goal` 模板。
+- 结合已有授权判断是否需要审批，减少同一范围内的重复确认。
+- 补齐中文技能说明、两张设置截图、可复制指令和发布包。
+
+详见 [v1.1.0 发布公告](docs/releases/v1.1.0.md)。
+
+## 文件与许可
+
+`SKILL.md` 是技能规则入口，`agents/openai.yaml` 提供界面说明。`docs/` 和 `examples/` 供使用者查阅。
+
+技能安装与指令机制参考 [OpenAI 官方技能文档](https://learn.chatgpt.com/docs/build-skills) 和 [AGENTS.md 指南](https://learn.chatgpt.com/docs/agent-configuration/agents-md)。
+
+[MIT License](LICENSE)。

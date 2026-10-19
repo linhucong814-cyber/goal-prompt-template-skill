@@ -1,13 +1,13 @@
 ---
 name: goal-prompt-template
-description: "Turn a rough one-sentence goal, idea, task, or Chinese request into a polished executable agent prompt or /goal prompt. Use when the user asks to optimize a prompt/question, 一句话达成目的, 自动翻译成提示词, 帮我写 /goal, agent 提示词模板, or wants fewer and better clarifying questions before execution."
+description: "Turn a rough one-sentence goal, idea, task, or Chinese request into a polished executable agent prompt or /goal prompt. Use when the user asks to optimize a prompt/question, 一句话达成目的, 自动翻译成提示词, 帮我写 /goal, agent 提示词模板, asks 你来执行最佳实践, or wants fewer and better clarifying questions before execution."
 ---
 
 # Goal Prompt Template
 
 ## Purpose
 
-Convert a short user goal into a final prompt that another Codex/agent can execute. Prefer a usable final prompt over a meta-prompt that asks an AI to write another prompt.
+Convert a short user goal into an executable task specification. If the user wants a prompt, return a usable final prompt. If the user explicitly asks you to execute the task, use that specification to complete the authorized work.
 
 ## Core Rules
 
@@ -16,8 +16,22 @@ Convert a short user goal into a final prompt that another Codex/agent can execu
 3. Ask questions only when missing information blocks execution, changes risk, or makes success unverifiable. Ask at most three questions.
 4. If questions are required, still provide a provisional final prompt with placeholders for the missing answers.
 5. Preserve the user's language unless they request another language.
-6. Make the output directly copyable. Do not add tutorial text around it.
-7. Use an approval gate for inspection, debugging, refactoring, UI review, or fix tasks: `检查完成之后制定修复方案并向我汇报，在批准后执行`.
+6. In prompt-only mode, make the output directly copyable and omit tutorial text. In execution mode, briefly state the intended outcome, do the work, and report verified results.
+7. For inspection, debugging, refactoring, UI review, or fix tasks without authorization to modify, use an approval gate: `检查完成之后制定修复方案并向我汇报，在批准后执行`. Respect existing authorization: if the user already asked to apply the changes, do not add another approval step for that same scope. Existing tool and environment permission requirements still apply.
+
+## Choose The Mode
+
+- **Prompt-only:** The user asks to optimize a prompt, write a template, or produce a `/goal` prompt. Return the requested prompt and do not start the described task.
+- **Execute:** The user asks you to do the work, including “你来执行最佳实践” or “按最佳实践直接完成”. Derive the target outcome, scope, deliverables, and verifiable completion criteria, then perform the authorized work. Do not stop after returning a prompt.
+- A request for a `/goal` prompt does not itself authorize starting a persistent goal, creating an automation, or delegating to other agents. Use those capabilities only when explicitly requested or otherwise authorized by applicable instructions.
+
+## Execution Mode
+
+Read the available context and identify the actual deliverable. State a short plan and any material assumption, then execute within the user's authorized scope. Use relevant available skills when they improve the result; do not assume any particular optional skill is installed.
+
+Ask at most three questions, only for missing information that blocks a correct or authorized next step. Continue independent work while awaiting an answer when possible. Permission for one action does not extend to unrelated accounts, costs, publications, or messages.
+
+Verify the result against the completion criteria. Report what was delivered, where to find it, how it was checked, and any remaining blocker. If a step cannot be completed, say so explicitly instead of treating a plan or draft as a finished result.
 
 ## Choose The Template
 
@@ -51,7 +65,7 @@ Output this structure, filled in with concrete details from the user's sentence:
 - 先快速理解现有上下文，再行动。
 - 信息不足但不阻塞时，采用合理假设并在结果中说明。
 - 遇到会改变文件、数据、配置、账户、费用或外部状态的操作时，先说明计划和影响。
-- [如果是检查/修复类任务，加入：检查完成之后制定修复方案并向我汇报，在批准后执行]
+- [检查/修复类任务且用户尚未授权修改时，加入：检查完成之后制定修复方案并向我汇报，在批准后执行]
 
 交付物：
 - [用户最终应该收到什么]
@@ -96,7 +110,7 @@ Use this when the user wants a durable task for `/goal`:
 - [可验证标准 3]
 
 最终提示词：
-[将以上内容合并成一段可直接交给 agent 执行的完整提示词。检查/修复类任务必须以“检查完成之后制定修复方案并向我汇报，在批准后执行”结尾。]
+[将以上内容合并成一段可直接交给 agent 执行的完整提示词。检查/修复类任务且用户尚未授权修改时，以“检查完成之后制定修复方案并向我汇报，在批准后执行”结尾。]
 ```
 
 ## Clarifying Questions + Provisional Prompt
